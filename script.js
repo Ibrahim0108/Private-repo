@@ -10,7 +10,7 @@
   const CONFIG = {
     name: "Ibrahim",
     // Put your footer anchor in the URL so visitors land on your email/contact section.
-    portfolioUrl: "https://YOUR-USERNAME.github.io/YOUR-PORTFOLIO/#footer" // <-- change this
+    portfolioUrl: "https://ibrahim0108.github.io/" // <-- change this
   };
 
   // Repo name is dynamic: add ?repo=project-name to the link on each portfolio button.
