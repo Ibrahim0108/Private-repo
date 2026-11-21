@@ -339,4 +339,4 @@ body.alarm::before {
 @media (prefers-reduced-motion: reduce) {
   .bit, .laser, .glitch::before, .glitch::after, .folder, .banner, .typing, .brand, .scanlines, .window, #whisper.on { animation: none !important; }
   .runner { transition: none; }
-}
+  }
