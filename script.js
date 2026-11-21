@@ -71,7 +71,7 @@
     line("ERROR: Permission denied (publickey).", "err");
     line("fatal: Could not read from remote repository.", "err");
     await ctx.wait(700);
-    line("█ ACCESS DENIED █  INTRUSION LOGGED", "banner");
+    line("█ ACCESS DENIED █  アクセス拒否", "banner");
     await ctx.wait(900);
     await type("Launching counter-hack: brute-force.exe ...", "warn", 18);
 
@@ -193,7 +193,7 @@
     ctx.root.innerHTML = `
       <section class="window forbidden">
         <div class="laser"></div>
-        <p class="kana">☠ RESTRICTED ZONE · AUTHORIZED ONLY</p>
+        <p class="kana">禁止区域 · RESTRICTED ZONE</p>
         <h1 class="glitch" data-text="403">403</h1>
         <h2 class="glitch-sm">FORBIDDEN</h2>
         <p class="lead">Whoa there! You just walked into a private repository.</p>
@@ -229,7 +229,253 @@
       await ctx.wait(650);
     }
     await ctx.wait(1300);
-    verdict.textContent = "...just kidding 😈 nothing was saved. It's only a private repo. The real thing lives in my portfolio!";
+    verdict.textContent = "...just kidding 😄 nothing was saved. It's only a private repo. The real thing lives in my portfolio!";
+    const wrap = el("div"); wrap.style.marginTop = "14px";
+    wrap.appendChild(portfolioBtn());
+    verdict.after(wrap);
+  }
+
+  /* =====================================================
+     SCENE 3 · Crack the vault
+     ===================================================== */
+  function sceneVault(ctx) {
+    const SECRET = "1337", MAX = 5;
+    ctx.root.innerHTML = `
+      <section class="window vault">
+        <p class="kana">金庫 · THE VAULT</p>
+        <h2 class="title">Crack the code to unlock <span class="mono-pink">${REPO}</span></h2>
+        <div class="slots" aria-live="polite"><b></b><b></b><b></b><b></b></div>
+        <p class="msg">Enter the 4-digit code.</p>
+        <div class="keypad"></div>
+        <p class="meta">Attempts left: <b class="left">${MAX}</b> <button class="link hintbtn" type="button" hidden>need a hint?</button></p>
+        <div class="result" hidden></div>
+      </section>`;
+    const root = $(".vault", ctx.root);
+    const slots = $$(".slots b", root);
+    const msg = $(".msg", root);
+    const leftEl = $(".left", root);
+    const hintBtn = $(".hintbtn", root);
+    const result = $(".result", root);
+    const pad = $(".keypad", root);
+
+    let code = "", left = MAX, locked = false, tries = 0;
+    const wrongs = [
+      "Nope. Wrong code, but nice confidence. 😌",
+      "Cold. Like Antarctica cold. 🧊",
+      "My grandma guesses better. And she's a bot.",
+      "Are you just mashing the keypad? 🎹",
+      "Last chance. The guards are stretching... 🥋"
+    ];
+
+    function render() {
+      slots.forEach((s, i) => {
+        s.textContent = code[i] || "";
+        s.classList.toggle("on", i === code.length && !locked);
+      });
+    }
+    function press(d) {
+      if (locked || code.length >= 4) return;
+      code += d; render();
+      if (code.length === 4) ctx.later(check, 250);
+    }
+    function back() { if (!locked) { code = code.slice(0, -1); render(); } }
+    function clear() { if (!locked) { code = ""; render(); } }
+
+    function check() {
+      if (code === SECRET) return win();
+      tries++; left--;
+      leftEl.textContent = left;
+      root.classList.add("shake");
+      ctx.later(() => root.classList.remove("shake"), 450);
+      if (["1234", "0000", "1111", "4321"].includes(code)) msg.textContent = "Seriously? That's what EVERYONE tries first. 🙄";
+      else msg.textContent = wrongs[Math.min(tries - 1, wrongs.length - 1)];
+      if (tries >= 3) hintBtn.hidden = false;
+      code = ""; render();
+      if (left <= 0) alarm();
+    }
+
+    function win() {
+      locked = true; render();
+      msg.textContent = "🔓 VAULT OPEN";
+      result.hidden = false; result.className = "result";
+      result.innerHTML = "🎉 OK fine, you cracked it! Honestly impressed.<br>The repo is still private, but get in touch and we can talk. My contact is in the portfolio footer:<br>";
+      result.appendChild(portfolioBtn("Take me to the contact →", "btn small alt"));
+    }
+
+    function alarm() {
+      locked = true;
+      document.body.classList.add("alarm");
+      root.classList.add("alarm");
+      msg.textContent = "🚨 SECURITY ALERTED 🚨 Guards are on the way!";
+      result.hidden = false; result.className = "result bad";
+      result.textContent = "Vault locked down. Cooling off for a moment...";
+      ctx.later(() => {
+        result.textContent = "Calm down, agent. ";
+        const retry = el("button", "btn small", "Reset vault");
+        retry.type = "button";
+        retry.addEventListener("click", () => {
+          document.body.classList.remove("alarm");
+          root.classList.remove("alarm");
+          left = MAX; tries = 0; code = ""; locked = false;
+          leftEl.textContent = left;
+          msg.textContent = "Vault reset. Try again.";
+          result.hidden = true;
+          render();
+        });
+        result.appendChild(retry);
+        result.appendChild(document.createTextNode(" "));
+        result.appendChild(portfolioBtn("Or go back to the portfolio", "btn small alt"));
+      }, 3500);
+    }
+
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "⌫"].forEach((k) => {
+      const b = el("button", "", k);
+      b.type = "button";
+      b.setAttribute("aria-label", k === "C" ? "Clear" : k === "⌫" ? "Backspace" : k);
+      b.addEventListener("click", () => (k === "C" ? clear() : k === "⌫" ? back() : press(k)));
+      pad.appendChild(b);
+    });
+    hintBtn.addEventListener("click", () => {
+      msg.textContent = "Hint: hackers call themselves 'l33t'. Read that as numbers. 😉";
+    });
+    ctx.on(document, "keydown", (e) => {
+      if (/^\d$/.test(e.key)) press(e.key);
+      else if (e.key === "Backspace") back();
+    });
+    ctx.onCleanup(() => document.body.classList.remove("alarm"));
+    render();
+  }
+
+  /* =====================================================
+     SCENE 4 · Catch the repo
+     ===================================================== */
+  function sceneCatch(ctx) {
+    ctx.root.innerHTML = `
+      <section class="window catch">
+        <p class="kana">捕獲ミッション · CATCH MISSION</p>
+        <h2 class="title">Catch <span class="mono-pink">${REPO}</span> to get in</h2>
+        <div class="arena">
+          <div class="runner">
+            <div class="bubble">Catch me!</div>
+            <div class="folder">📁</div>
+            <span class="lock">🔒</span>
+            <span class="fname">${REPO}</span>
+          </div>
+        </div>
+        <p class="meta">Dodges: <b class="count">0</b></p>
+        <p class="final" hidden></p>
+      </section>`;
+    const arena = $(".arena", ctx.root);
+    const runner = $(".runner", ctx.root);
+    const bubble = $(".bubble", ctx.root);
+    const countEl = $(".count", ctx.root);
+    const finalEl = $(".final", ctx.root);
+    const RW = 120, RH = 120;
+    const taunts = ["Too slow!", "Nani?!", "Missed me!", "Hehe~", "Over here!", "Is that all? 😏", "Zoom zoom!", "Try harder!", "Sugoi dodge!"];
+    let count = 0, last = 0, done = false;
+
+    const place = (x, y) => { runner.style.left = x + "px"; runner.style.top = y + "px"; };
+    const bounds = () => {
+      const r = arena.getBoundingClientRect();
+      return { w: r.width, h: r.height, left: r.left, top: r.top };
+    };
+    const center = () => { const b = bounds(); place((b.w - RW) / 2, (b.h - RH) / 2); };
+
+    function dodge(px, py) {
+      const now = Date.now();
+      if (now - last < 220) return;
+      last = now;
+      const b = bounds();
+      let best = null, bestD = -1;
+      for (let i = 0; i < 24; i++) {
+        const x = rand(0, Math.max(0, Math.floor(b.w - RW)));
+        const y = rand(0, Math.max(0, Math.floor(b.h - RH)));
+        const d = Math.hypot(x + RW / 2 - px, y + RH / 2 - py);
+        if (d > bestD) { bestD = d; best = [x, y]; }
+      }
+      place(best[0], best[1]);
+      count++;
+      countEl.textContent = count;
+      bubble.textContent = pick(taunts);
+      if (count >= 10 && !done) {
+        done = true;
+        finalEl.hidden = false;
+        finalEl.textContent = "Even I can't catch it. It's private. 🔒";
+        finalEl.after(Object.assign(el("div"), { style: "margin-top:14px" }));
+        finalEl.nextElementSibling.appendChild(portfolioBtn());
+      }
+    }
+
+    function near(e) {
+      const b = bounds();
+      const px = e.clientX - b.left, py = e.clientY - b.top;
+      const rx = parseFloat(runner.style.left) + RW / 2;
+      const ry = parseFloat(runner.style.top) + RH / 2;
+      if (Math.hypot(px - rx, py - ry) < 130) dodge(px, py);
+    }
+    ctx.on(arena, "pointermove", (e) => { if (e.pointerType === "mouse") near(e); });
+    ctx.on(arena, "pointerdown", near);
+    ctx.on(runner, "click", () => {
+      bubble.textContent = "You caught me?! ...it's private lol 🔒";
+    });
+    ctx.on(window, "resize", center);
+    center();
+  }
+
+  /* =====================================================
+     SCENE 5 · Guard Bot chat
+     ===================================================== */
+  async function sceneGuard(ctx) {
+    ctx.root.innerHTML = `
+      <section class="window chat">
+        <div class="chat-head">
+          <div class="avatar">🛡️</div>
+          <div><b>Guard Bot</b><small>● online · Security level: OVER 9000</small></div>
+        </div>
+        <div class="msgs" aria-live="polite"></div>
+        <div class="chips"></div>
+        <form class="chat-form">
+          <input type="text" maxlength="140" placeholder="Ask nicely..." autocomplete="off" aria-label="Message to Guard Bot">
+          <button class="btn small" type="submit">Send</button>
+        </form>
+      </section>`;
+    const msgs = $(".msgs", ctx.root);
+    const chips = $(".chips", ctx.root);
+    const form = $(".chat-form", ctx.root);
+    const input = $("input", form);
+
+    const say = (who, content) => {
+      const d = el("div", "bub " + who);
+      if (typeof content === "string") d.textContent = content; else d.appendChild(content);
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+      return d;
+    };
+    const botSay = async (content) => {
+      const t = say("bot", el("span", "typing", "● ● ●"));
+      await ctx.wait(rand(550, 950));
+      t.remove();
+      say("bot", content);
+    };
+
+    const ladder = [
+      "Request denied.",
+      "Have you tried asking nicely?",
+      "That was nice. Still no.",
+      "Bribery detected. I only accept cookies 🍪... still no.",
+      "I'm paid in exposure and I still say no.",
+      "Okay okay... you're persistent. I respect that."
+    ];
+    const pool = [
+      "Still no. But I admire the effort. 💪",
+      "My answer is the same. It has been the same since 1970.",
+      "Error 403: Mercy not found.",
+      "You could just check the portfolio, you know? 👀",
+      "I'm legally required to say no. (Not really, I just like it.)"
+    ];
+    const rules = [
+      { re: /recruit|hire|hiring|job|interview/i, say: "A recruiter?! 👔 Then you absolutely need the portfolio. Ibrahim is very hireable.", cta: true },
+    tent = "...just kidding 😈 nothing was saved. It's only a private repo. The real thing lives in my portfolio!";
     const wrap = el("div"); wrap.style.marginTop = "14px";
     wrap.appendChild(portfolioBtn());
     verdict.after(wrap);
