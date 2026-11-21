@@ -10,7 +10,7 @@
   const CONFIG = {
     name: "Ibrahim",
     // Put your footer anchor in the URL so visitors land on your email/contact section.
-    portfolioUrl: "https://ibrahim0108.github.io/" // <-- change this
+    portfolioUrl: "https://YOUR-USERNAME.github.io/YOUR-PORTFOLIO/#footer" // <-- change this
   };
 
   // Repo name is dynamic: add ?repo=project-name to the link on each portfolio button.
@@ -71,7 +71,7 @@
     line("ERROR: Permission denied (publickey).", "err");
     line("fatal: Could not read from remote repository.", "err");
     await ctx.wait(700);
-    line("█ ACCESS DENIED █  アクセス拒否", "banner");
+    line("█ ACCESS DENIED █  INTRUSION LOGGED", "banner");
     await ctx.wait(900);
     await type("Launching counter-hack: brute-force.exe ...", "warn", 18);
 
@@ -193,7 +193,7 @@
     ctx.root.innerHTML = `
       <section class="window forbidden">
         <div class="laser"></div>
-        <p class="kana">禁止区域 · RESTRICTED ZONE</p>
+        <p class="kana">☠ RESTRICTED ZONE · AUTHORIZED ONLY</p>
         <h1 class="glitch" data-text="403">403</h1>
         <h2 class="glitch-sm">FORBIDDEN</h2>
         <p class="lead">Whoa there! You just walked into a private repository.</p>
@@ -229,7 +229,7 @@
       await ctx.wait(650);
     }
     await ctx.wait(1300);
-    verdict.textContent = "...just kidding 😄 nothing was saved. It's only a private repo. The real thing lives in my portfolio!";
+    verdict.textContent = "...just kidding 😈 nothing was saved. It's only a private repo. The real thing lives in my portfolio!";
     const wrap = el("div"); wrap.style.marginTop = "14px";
     wrap.appendChild(portfolioBtn());
     verdict.after(wrap);
@@ -242,7 +242,7 @@
     const SECRET = "1337", MAX = 5;
     ctx.root.innerHTML = `
       <section class="window vault">
-        <p class="kana">金庫 · THE VAULT</p>
+        <p class="kana">☠ THE VAULT · LAST WARNING</p>
         <h2 class="title">Crack the code to unlock <span class="mono-pink">${REPO}</span></h2>
         <div class="slots" aria-live="polite"><b></b><b></b><b></b><b></b></div>
         <p class="msg">Enter the 4-digit code.</p>
@@ -352,7 +352,7 @@
   function sceneCatch(ctx) {
     ctx.root.innerHTML = `
       <section class="window catch">
-        <p class="kana">捕獲ミッション · CATCH MISSION</p>
+        <p class="kana">⚠ CONTAINMENT BREACH · CATCH IT</p>
         <h2 class="title">Catch <span class="mono-pink">${REPO}</span> to get in</h2>
         <div class="arena">
           <div class="runner">
@@ -371,7 +371,7 @@
     const countEl = $(".count", ctx.root);
     const finalEl = $(".final", ctx.root);
     const RW = 120, RH = 120;
-    const taunts = ["Too slow!", "Nani?!", "Missed me!", "Hehe~", "Over here!", "Is that all? 😏", "Zoom zoom!", "Try harder!", "Sugoi dodge!"];
+    const taunts = ["Too slow...", "Behind you.", "I see you.", "Nope.", "Over here...", "Cute try. 😈", "Can't touch this.", "Try harder.", "Hehehe..."];
     let count = 0, last = 0, done = false;
 
     const place = (x, y) => { runner.style.left = x + "px"; runner.style.top = y + "px"; };
@@ -429,7 +429,7 @@
     ctx.root.innerHTML = `
       <section class="window chat">
         <div class="chat-head">
-          <div class="avatar">🛡️</div>
+          <div class="avatar">💀</div>
           <div><b>Guard Bot</b><small>● online · Security level: OVER 9000</small></div>
         </div>
         <div class="msgs" aria-live="polite"></div>
@@ -568,19 +568,37 @@
     return randomOther(Number.isNaN(last) ? -1 : last);
   }
 
-  /* ---------- sakura petals ---------- */
-  function petals() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const box = $("#petals");
-    for (let i = 0; i < 16; i++) {
-      const p = el("span", "petal");
-      p.style.left = rand(0, 100) + "%";
-      p.style.setProperty("--s", rand(8, 16) + "px");
-      p.style.setProperty("--d", rand(9, 18) + "s");
-      p.style.setProperty("--delay", "-" + rand(0, 18) + "s");
-      p.style.setProperty("--x", rand(-120, 160) + "px");
-      box.appendChild(p);
+  /* ---------- digital rain + creepy whispers ---------- */
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function rain() {
+    if (reducedMotion) return;
+    const box = $("#rain");
+    const chars = "01{}<>/;#$%&*+=?!".split("");
+    for (let i = 0; i < 30; i++) {
+      const text = Array.from({ length: rand(5, 12) }, () => pick(chars)).join("\n");
+      const b = el("span", "bit", text);
+      b.style.left = rand(0, 100) + "%";
+      b.style.setProperty("--s", rand(11, 18) + "px");
+      b.style.setProperty("--d", rand(8, 18) + "s");
+      b.style.setProperty("--delay", "-" + rand(0, 18) + "s");
+      b.style.setProperty("--o", (rand(10, 34) / 100).toFixed(2));
+      box.appendChild(b);
     }
+  }
+
+  function whispers() {
+    if (reducedMotion) return;
+    const w = $("#whisper");
+    const lines = ["I SEE YOU", "TURN BACK", "YOU SHOULDN'T BE HERE", "WE ARE WATCHING", "LEAVE", "ACCESS FORBIDDEN"];
+    const fire = () => {
+      w.textContent = pick(lines);
+      w.classList.remove("on");
+      void w.offsetWidth; // restart animation
+      w.classList.add("on");
+      setTimeout(fire, rand(14000, 28000));
+    };
+    setTimeout(fire, rand(9000, 16000));
   }
 
   /* ---------- boot ---------- */
@@ -588,6 +606,7 @@
   $$("[data-portfolio]").forEach((a) => { a.href = CONFIG.portfolioUrl; });
   $$("[data-name]").forEach((n) => { n.textContent = CONFIG.name; });
   $("#shuffle").addEventListener("click", () => loadScene(randomOther(currentIndex)));
-  petals();
+  rain();
+  whispers();
   loadScene(firstScene());
 })();
